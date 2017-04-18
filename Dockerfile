@@ -9,12 +9,19 @@ ENV SERVER_CONFIG /camunda/standalone/configuration/standalone.xml
 ENV PREPEND_JAVA_OPTS -Djboss.bind.address=0.0.0.0 -Djboss.bind.address.management=0.0.0.0
 ENV NEXUS https://app.camunda.com/nexus/service/local/artifact/maven/redirect
 ENV LAUNCH_JBOSS_IN_BACKGROUND TRUE
-ENV LANG en_US.UTF-8
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y locales
+
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    echo 'LANG="en_US.UTF-8"'>/etc/default/locale && \
+    dpkg-reconfigure --frontend=noninteractive locales && \
+    update-locale LANG=en_US.UTF-8
+
+ENV LANG en_US.UTF-8 
 
 WORKDIR /camunda
 
 # generate locale
-RUN apt-get install locales
 RUN locale-gen en_US.UTF-8
 
 # install oracle java
